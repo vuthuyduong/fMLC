@@ -1411,6 +1411,9 @@ void combinePointsWithProperties(CString inputtitlefilename, CString inputfilena
 		if (line == "") {
 			continue;
 		}
+		if (line[0] != '>') {
+			continue;
+		}
 		fileindex++;
 		std::vector<std::string> properties = split(line, '|');
 		/*std::string id(properties.at(0).c_str());
