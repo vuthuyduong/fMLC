@@ -19,7 +19,7 @@ OptionDlg::OptionDlg(CWnd* pParent /*=NULL*/ )
 {
 }
 
-OptionDlg::OptionDlg(int32_t p_MinOverlap, int32_t p_MinSeqNoForMLC, double p_MinSimForVisualization, int32_t p_KneighborNo, int32_t p_VisDimension, CWnd* pParent)
+OptionDlg::OptionDlg(int32_t p_MinOverlap, int32_t p_MinSeqNoForMLC, double p_MinSimForVisualization, int32_t p_KneighborNo, int32_t p_VisDimension, int32_t p_SimMatType, int32_t p_ResFormat, CWnd* pParent)
 	: CDialogEx(IDD_OPTION_DIALOG, pParent)
 {	
 	m_MinOverlap = p_MinOverlap;
@@ -27,6 +27,8 @@ OptionDlg::OptionDlg(int32_t p_MinOverlap, int32_t p_MinSeqNoForMLC, double p_Mi
 	m_MinSimForVisualization = p_MinSimForVisualization;
 	m_KneighborNo = p_KneighborNo;
 	m_VisDimension = p_VisDimension;
+	m_SimMatType = p_SimMatType;
+	m_ResFormat = p_ResFormat;
 }
 
 OptionDlg::~OptionDlg()
@@ -44,8 +46,11 @@ void OptionDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, EF_Min_Overlap, EF_MinimumOverlap);
 	DDX_Control(pDX, EF_MAX_NUMBER, EF_MinNoForMLC);
 	DDX_Control(pDX, EF_MIN_SIM_FOR_VISUALIZATION, EF_MinSimForVisualization);
+	DDX_Control(pDX, CO_SIMMAT_TYPE, CO_SimMatType);
+	//DDX_Control(pDX, CO_SIMMAT_FORMAT, CO_SimMatFormat);
 	DDX_Control(pDX, EF_NUMBER_FOR_VISUALIZATION, EF_Kneighbor);
 	DDX_Control(pDX, CO_VIS_DIMENSION, CO_VisDimension);
+	DDX_Control(pDX, CO_RESULTFORMAT, CO_ResFormat);
 }
 
 
@@ -99,6 +104,18 @@ BOOL OptionDlg::OnInitDialog()
 	else {
 		CO_VisDimension.SetCurSel(1);
 	}
+	//	add sim matrix type
+	CO_SimMatType.AddString(L"complete");
+	CO_SimMatType.AddString(L"sparse");
+	CO_SimMatType.SetCurSel(m_SimMatType);
+	
+	//	add clustering result format
+	CO_ResFormat.AddString(L"tab delimited");
+	CO_ResFormat.AddString(L"fasta file");
+	CO_ResFormat.AddString(L"fasta folder");
+	CO_ResFormat.SetCurSel(m_ResFormat);
+
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -128,6 +145,8 @@ void OptionDlg::OnBnClickedOk()
 	{
 		m_VisDimension = 3;
 	}
+	m_SimMatType = (int32_t)CO_SimMatType.GetCurSel();
+	m_ResFormat = (int32_t)CO_ResFormat.GetCurSel();
 	EndDialog(0);
 }
 

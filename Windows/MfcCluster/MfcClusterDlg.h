@@ -56,6 +56,12 @@ protected:
 	void			SaveInGrid();
 	void			DrawGroup(HTREEITEM & p_ParentNode, const TCluster & p_Cluster);
 	void			DrawComparison(HTREEITEM & p_ParentNode, const TCluster & p_Cluster, const TComparison & p_Comp);
+	void			SaveClusteringResultAsFastaFile();
+	void			SaveClusteringResultAsFastaFolder();
+	void			SaveClusteringResultAsTabDelimitedFile();
+	void			SaveSparseSimilarityMatrix();
+	void			SaveCompleteSimilarityMatrix();
+
 	// Implementation
 protected:
 	HICON m_hIcon;
@@ -84,11 +90,15 @@ public:
 	double	m_FromThreshold;
 	double	m_ToThreshold;
 	double	m_OptThreshold;
-	double			m_Step = 0.0001;
-	int32_t			m_FieldNamePos;					//	the zero-based index of the field name in the fasta file sequence name. 6 for medical fungi, 3 for the other CBS database. -1 if undefined
-	double m_MinSimForVisualization = 0.5;			//minimum similarity to be display in the visualization
-	int32_t			m_KneighborNo = 150; // as default by LargeVis
-	int32_t			m_VisDimension = 3;				// the number of dimensions for visualization 2D or 3D; default=3D
+	double	m_Step = 0.0001;
+	int32_t	m_FieldNamePos;					//	the zero-based index of the field name in the fasta file sequence name. 6 for medical fungi, 3 for the other CBS database. -1 if undefined
+	double	m_MinSimForVisualization = 0.5;			//minimum similarity to be display in the visualization
+	int32_t	m_KneighborNo = 150; // as default by LargeVis
+	int32_t	m_VisDimension = 3;				// the number of dimensions for visualization 2D or 3D; default=3D
+	int32_t	m_SimMatType = 0; //0: complete; 1: sparse
+	int32_t	m_ResFormat = 0; //0: tab format; 1: fasta file;2: fasta folder
+
+
 	ClusterDB		m_ClusterDatabase;				//	the unique cluster database
 	TCluster		*	m_RefCluster;						//	the reference cluster
 	TCluster		*	m_Cluster;							//	the working cluster
@@ -98,8 +108,8 @@ public:
 	afx_msg void OnBnClickedCluster();
 	afx_msg void OnEnChangeInputFilePath();
 	void Visualize();
-	bool m_recordnameextended=false;
-	double Cluster(const vector<double> & thresholds);
+	
+	void Cluster(const vector<double> & thresholds, double & f, size_t & maxgroupseqno, size_t & groupno);
 
 	// The input field in the record name found in the input fasta file
 	CComboBox CO_InputField;
@@ -134,17 +144,16 @@ public:
 	CMFCEditBrowseCtrl EB_InputFilePath;
 	// the name of the output file for the computed cluster
 	CMFCEditBrowseCtrl EB_OutputFilePath;
-	CMFCButton PB_Export;
+//	CMFCButton PB_Export;
 	CMFCButton PB_SaveFastaFiles;
 
-	afx_msg void OnBnClickedExport();
+	
 	afx_msg void OnBnClickedFinallevel();
 	afx_msg void OnBnClickedComputefmeasure();
 	afx_msg void OnBnClickedOptimize();
 	afx_msg void OnBnClickedOption();
 	afx_msg void OnBnClickedVisualize();
+	
 	afx_msg void OnBnClickedSavesimilarity();
-	afx_msg void OnBnClickedSavefullsimilarity();
 	afx_msg void OnBnClickedSave();
-	afx_msg void OnBnClickedSavefastafiles();
 };

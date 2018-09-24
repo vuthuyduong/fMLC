@@ -118,8 +118,8 @@ void MfcClusterDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, PB_CLUSTER, PB_Cluster);
 	DDX_Control(pDX, EB_INPUT_FILE_PATH, EB_InputFilePath);
 	DDX_Control(pDX, EB_OUTPUT_PATH, EB_OutputFilePath);
-	DDX_Control(pDX, PB_EXPORT, PB_Export);
-	DDX_Control(pDX, PB_SAVEFASTAFILES, PB_SaveFastaFiles);
+	//DDX_Control(pDX, PB_EXPORT, PB_Export);
+	//DDX_Control(pDX, PB_SAVEFASTAFILES, PB_SaveFastaFiles);
 }
 
 BEGIN_MESSAGE_MAP(MfcClusterDlg, CDialogEx)
@@ -130,17 +130,14 @@ BEGIN_MESSAGE_MAP(MfcClusterDlg, CDialogEx)
 	ON_BN_CLICKED(PB_CLUSTER, &MfcClusterDlg::OnBnClickedCluster)
 	ON_CBN_SELCHANGE(CO_ALGORITHM, &MfcClusterDlg::OnCbnSelchangeAlgorithm)
 	ON_EN_CHANGE(EB_INPUT_FILE_PATH, &MfcClusterDlg::OnEnChangeInputFilePath)
-	ON_BN_CLICKED(PB_EXPORT, &MfcClusterDlg::OnBnClickedExport)
+	//ON_BN_CLICKED(PB_EXPORT, &MfcClusterDlg::OnBnClickedExport)
 	ON_BN_CLICKED(PB_FinalLevel, &MfcClusterDlg::OnBnClickedFinallevel)
 	ON_BN_CLICKED(PB_ComputeFMeasure, &MfcClusterDlg::OnBnClickedComputefmeasure)
 	ON_BN_CLICKED(PB_Optimize, &MfcClusterDlg::OnBnClickedOptimize)
 	ON_BN_CLICKED(PB_Option, &MfcClusterDlg::OnBnClickedOption)
 	ON_BN_CLICKED(PB_Visualize, &MfcClusterDlg::OnBnClickedVisualize)
 	ON_BN_CLICKED(PB_SaveSimilarity, &MfcClusterDlg::OnBnClickedSavesimilarity)
-	ON_BN_CLICKED(PB_SaveFullSimilarity, &MfcClusterDlg::OnBnClickedSavefullsimilarity)
 	ON_BN_CLICKED(PB_SAVE, &MfcClusterDlg::OnBnClickedSave)
-	ON_BN_CLICKED(PB_SAVEFASTAFILES, &MfcClusterDlg::OnBnClickedSavefastafiles)
-	
 END_MESSAGE_MAP()
 
 
@@ -215,8 +212,8 @@ BOOL MfcClusterDlg::OnInitDialog()
 	PB_Cluster.SetIcon(hIcon);
 	//PB_Cluster.SetImage(LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_START)));
 
-	EB_InputFilePath.EnableFileBrowseButton(L"fas", L"Fasta files (*.fas;*.fa)|*.fas;*.fa|All Files (*.*)|*.*|");
-	EB_OutputFilePath.EnableFileBrowseButton(L"clus", L"Cluster result files (*.clus)|*.clus|All Files (*.*)|*.*|");
+	EB_InputFilePath.EnableFileBrowseButton(L"fas", L"Fasta files (*.fas;*.fa;*.fasta)|*.fas;*.fa;*.fasta|All Files (*.*)|*.*|");
+	//EB_OutputFilePath.EnableFileBrowseButton(L"clus", L"Cluster result files (*.clus)|*.clus|All Files (*.*)|*.*|");
 	wchar_t stringC[264];
 	
 	EF_Steps.SetWindowTextW(ToString(stringC, m_Step, 4));
@@ -446,11 +443,11 @@ void MfcClusterDlg::OnEnChangeInputFilePath()
 		CO_InputField.AddString(wide.c_str());
 		comboLine = clustering::StrainNameFilter(line, ++fieldIdx);
 	}
-	if (fieldIdx == 0){
+	/*if (fieldIdx == 0){
 		MessageBox(L"Please check the title file.", L"Warning", MB_ICONWARNING | MB_OK);
 		Wait(L"", 0.0);
 		return;
-	}
+	}*/
 	//	choose one of them, often the third one
 	if(m_FieldNamePos >= 0 && m_FieldNamePos < fieldIdx) {	//	re-use the same index
 		CO_InputField.SetCurSel(m_FieldNamePos);
@@ -461,7 +458,7 @@ void MfcClusterDlg::OnEnChangeInputFilePath()
 	else {
 		CO_InputField.SetCurSel(0);
 	}
-	m_recordnameextended = false;
+	delete m_Cluster;
 }
 
 //	return the FILETIME structure containing the last change date-time of the given file
@@ -643,36 +640,11 @@ void MfcClusterDlg::OnBnClickedCluster()
 		EF_FMeasure.SetWindowTextW(L"");
 	}
 	//	enable the export button
-	PB_Export.EnableWindow(true);
+	//PB_Export.EnableWindow(true);
 
 	Wait( L"Ready", 1.0);
 }
 
-
-
-void MfcClusterDlg::OnBnClickedExport()
-{
-	if(m_Cluster == nullptr) {
-		MessageBox(L"Please run a computation before exporting the resulting cluster", L"Warning", MB_ICONWARNING | MB_OK);
-		Wait(L"", 0.0);
-		return;
-	}
-
-	CString outFilePath;
-	EB_OutputFilePath.GetWindowTextW(outFilePath);
-	m_OutputClusterFilePath = outFilePath.GetBuffer();
-
-	if (m_OutputClusterFilePath.size() == 0) {
-		MessageBox(L"Please select a destination file for the cluster results", L"Warning", MB_ICONWARNING | MB_OK);
-		Wait(L"", 0.0);
-		return;
-	}
-	Wait(L"Saving cluster as text ...", 0.3);
-	uint32_t fieldNamePos = CO_InputField.GetCurSel();
-	m_Cluster->SaveAsText(m_OutputClusterFilePath.c_str(), fieldNamePos, (uint32_t)m_Thresholds.size());
-
-	Wait(L"Ready", 0.0);
-}
 
 int MfcClusterDlg::LoadSourceFile()
 {
@@ -1050,7 +1022,7 @@ void MfcClusterDlg::OnBnClickedFinallevel()
 		EF_FMeasure.SetWindowTextW(L"");
 	}
 	//	enable the export button
-	PB_Export.EnableWindow(true);
+	//PB_Export.EnableWindow(true);
 
 }
 
@@ -1070,9 +1042,9 @@ void MfcClusterDlg::OnBnClickedComputefmeasure()
 	EF_FMeasure.SetWindowTextW(ToString(stringC, f, 3));
 }
 
-double MfcClusterDlg::Cluster(const vector<double> & thresholds)
+void MfcClusterDlg::Cluster(const vector<double> & thresholds, double & f, size_t  & maxgroupseqno, size_t &  groupno)
 {
-	wchar_t stringC[1032];
+	//wchar_t stringC[1032];
 
 	AlgorithmEnum algo = static_cast<AlgorithmEnum>(CO_Algorithm.GetCurSel());
 	int32_t fieldNamePos = CO_InputField.GetCurSel();
@@ -1094,7 +1066,7 @@ double MfcClusterDlg::Cluster(const vector<double> & thresholds)
 		if (m_InputFilename.size() == 0) {
 			MessageBox(L"Please select a source fasta file", L"Warning", MB_ICONWARNING | MB_OK);
 			Wait(L"", 0.0);
-			return 0.0;
+			return;
 		}
 		Wait(L"Loading source file ...", x);		x += dx;
 		LoadSourceFile();
@@ -1156,19 +1128,24 @@ double MfcClusterDlg::Cluster(const vector<double> & thresholds)
 
 	//	compute and update the F-Measure
 	Wait(L"Computing quality ...", x);		x += dx;
-	double f = m_Cluster->F_Measure_Mt(*m_RefCluster);
-	EF_FMeasure.SetWindowTextW(ToString(stringC, f, 3));
+   f = m_Cluster->F_Measure_Mt(*m_RefCluster);
+	//compute group number
+	groupno = m_Cluster->FinalGroupNo();
+	//compute the maximum sequence number within a group
+	maxgroupseqno = m_Cluster->MaxGroupSeqNo();
 
-	std::wostringstream stream;
-	stream << std::endl << L"Threshold = " << thresholds.back() << L", F-Measure = " << f;
-	stream << L", Cluster contains " << m_Cluster->GroupNo() << L" groups";
-	if (m_RefCluster) {
-		stream << " and " << m_RefCluster->ClassifiedSequenceNo() << L" classified sequences";
-	}
-	OutputDebugString(stream.str().c_str());
+	//EF_FMeasure.SetWindowTextW(ToString(stringC, f, 3));
+
+	//std::wostringstream stream;
+	//stream << std::endl << L"Threshold = " << thresholds.back() << L", F-Measure = " << f;
+	//stream << L", Cluster contains " << m_Cluster->GroupNo() << L" groups";
+	//if (m_RefCluster) {
+		//stream << " and " << m_RefCluster->ClassifiedSequenceNo() << L" classified sequences";
+	//}
+	//OutputDebugString(stream.str().c_str());
 
 	Wait(L"Ready", 1.0);
-	return f;
+//	return f;
 }
 
 
@@ -1215,6 +1192,7 @@ void MfcClusterDlg::OnBnClickedOptimize()
 	}
 	double bestf = 0.0;
 	double threshold = m_FromThreshold;
+	file << "Threshold" << "\t" << "F-measure" << "\t" << "Number of the groups" << "\t" << "Percentage of the largest group" << endl;
 	do {
 		vector<double> thresholds;
 		if (algo == MLC && m_FromThresholds.size() != 1) {
@@ -1223,14 +1201,18 @@ void MfcClusterDlg::OnBnClickedOptimize()
 			}
 		}
 		thresholds.push_back(threshold);
-		double f = Cluster(thresholds);
+		double f = 0;
+		size_t groupno = 0;
+		size_t maxgroupseqno = 0;
+		Cluster(thresholds,f,maxgroupseqno,groupno);
+		double percentageofbiggestgroup = ((double) maxgroupseqno) / ((double) m_ClusterDatabase.m_Sequences.size());
 		if (f > bestf) {
 			bestf = f;
 			m_OptThreshold = threshold;
 		}
 		//save in the result file
 		if (result==IDYES) {
-			file << threshold << "\t" <<  f << endl;
+			file << threshold << "\t" <<  f << "\t" << groupno << "\t" << percentageofbiggestgroup  << endl;
 			bool isError = (file.goodbit != 0);
 		}
 		threshold = threshold + m_Step;
@@ -1242,9 +1224,8 @@ void MfcClusterDlg::OnBnClickedOptimize()
 	//	display that cluster in our grid
 	SaveInGrid();
 
-	//	update the group number
+	//	update the optimal threshold
 	wchar_t stringC[264];
-	size_t len = m_Cluster->FinalGroupNo();
 	DrawOptThresholds();
 	EF_FMeasure.SetWindowTextW(ToString(stringC, bestf, 3));
 }
@@ -1258,12 +1239,15 @@ void MfcClusterDlg::OnBnClickedOption()
 	//OptionDlg optdlg();
 	int32_t m_MinOverlap = m_ClusterDatabase.m_MinOverlap;
 	int32_t m_MinSeqNoForMLC = m_ClusterDatabase.m_MinSeqNoForMLC;
-	OptionDlg optdlg( m_MinOverlap, m_MinSeqNoForMLC, m_MinSimForVisualization, m_KneighborNo, m_VisDimension);
+	OptionDlg optdlg( m_MinOverlap, m_MinSeqNoForMLC, m_MinSimForVisualization, m_KneighborNo, m_VisDimension,m_SimMatType,m_ResFormat);
 	optdlg.DoModal();
 	m_ClusterDatabase.m_MinOverlap = optdlg.m_MinOverlap;
 	m_MinSimForVisualization = optdlg.m_MinSimForVisualization;
 	m_KneighborNo = optdlg.m_KneighborNo;
 	m_VisDimension = optdlg.m_VisDimension;
+	m_SimMatType = optdlg.m_SimMatType;
+	m_ResFormat = optdlg.m_ResFormat;
+
 	m_ClusterDatabase.m_MinSeqNoForMLC = optdlg.m_MinSeqNoForMLC;
 }
 
@@ -1599,9 +1583,14 @@ void MfcClusterDlg::Visualize()
 
 
 
-void MfcClusterDlg::OnBnClickedSavesimilarity()
+void MfcClusterDlg::SaveSparseSimilarityMatrix()
 {
 	if (m_ClusterDatabase.m_Sequences.size() == 0) {
+		return;
+	}
+	if (m_Cluster == nullptr) {
+		MessageBox(L"Please cluster the sequences first before saving the sparse similarity matrix.", L"Warning", MB_ICONWARNING | MB_OK);
+		Wait(L"", 0.0);
 		return;
 	}
 	CString fullfilename = CString(m_InputFilePath.c_str()) + CString(m_Filename.c_str()) + L".sim";
@@ -1620,7 +1609,7 @@ void MfcClusterDlg::OnBnClickedSavesimilarity()
 }
 
 
-void MfcClusterDlg::OnBnClickedSavefullsimilarity()
+void MfcClusterDlg::SaveCompleteSimilarityMatrix()
 {
 	CString inFilePath;
 	EB_InputFilePath.GetWindowTextW(inFilePath);
@@ -1653,66 +1642,95 @@ void MfcClusterDlg::OnBnClickedSavefullsimilarity()
 }
 
 
-void MfcClusterDlg::OnBnClickedSave()
+
+void MfcClusterDlg::SaveClusteringResultAsFastaFile()
 {
-	//	save clusters in Fasta file
-	if (m_recordnameextended == true){
-		if (MessageBox(L"You have saved the clustering result in the input file. Do you wish to continue?", L"Warning", MB_YESNOCANCEL) != IDYES) {
-			Wait(L"", 0.0);
-			return;
-		}
+	CString outFilePath;
+	EB_OutputFilePath.GetWindowTextW(outFilePath);
+	m_OutputClusterFilePath = outFilePath.GetBuffer();
+	if (m_OutputClusterFilePath.size() == 0) {
+		MessageBox(L"Please select a destination file for the cluster results", L"Warning", MB_ICONWARNING | MB_OK);
+		Wait(L"", 0.0);
+		return;
 	}
-	uint32_t fieldNamePos = CO_InputField.GetCurSel();
-	m_Cluster->ExtendRecordNames(0, (uint32_t)m_Thresholds.size() ,"", fieldNamePos);
-	m_recordnameextended = true;
 	//	Save results into the fasta file
-	std::ofstream file(m_InputFilename.c_str(), std::ofstream::binary);
+	uint32_t fieldNamePos = CO_InputField.GetCurSel();
+	TCluster * m_TmpCluster = m_Cluster;
+	
+	m_TmpCluster -> ExtendRecordNames(0, (uint32_t)m_Thresholds.size(), "", fieldNamePos);
+	std::ofstream file(m_OutputClusterFilePath.c_str(), std::ofstream::binary);
 	Wait(L"Saving clusters in Fasta file...", 0.3);
 	if (file.fail()) {
 		Wait(L"Ready", 0.0);
 		return;  //	error
 	}
-	for (TNFieldBase * seq : m_Cluster->Sequences()) {
+	for (TNFieldBase * seq : m_TmpCluster -> Sequences()) {
 		file << ">" << seq->RecordName() << "\r\n";
 		file << seq->Sequence() << "\r\n";
 	}
 	Wait(L"Ready", 0.0);
 	bool isError = (file.goodbit != 0);
 	file.close();
-	//	Save results into the title file
-	fstream titlefile;
-	titlefile.open(m_TitleFilename.c_str(), ios_base::out | ios_base::in);  
-	if (titlefile.is_open())
-	{
-		std::string line;
-		line.reserve(2000);
-		std::getline(titlefile, line);
-		titlefile.close();
-		std::ofstream titlefile(m_TitleFilename.c_str(), std::ofstream::binary);
-		titlefile << line + "|Suggested name";
-		for (uint32_t i = 0; i < m_Thresholds.size(); ++i) {
-			titlefile << "|Level" << to_string(i + 1) ;
-		}
-		titlefile.close();
-	}
 }
 
-
-void MfcClusterDlg::OnBnClickedSavefastafiles()
+void MfcClusterDlg::SaveClusteringResultAsFastaFolder()
 {
-	// TODO: Add your control notification handler code here
-	if (m_Cluster == nullptr) {
-		MessageBox(L"Please run a computation before exporting the resulting cluster", L"Warning", MB_ICONWARNING | MB_OK);
-		Wait(L"", 0.0);
-		return;
-	}
-	
 	//	Create a folder to save
-	CString folderpath = CString(m_InputFilePath.c_str()) + CString(m_Filename.c_str()) + L"_Clusters" ;
-	system(CStringA(L"mkdir " +  folderpath));
+	CString folderpath = CString(m_InputFilePath.c_str()) + CString(m_Filename.c_str()) + L"_Clusters";
+	system(CStringA(L"mkdir " + folderpath));
 	Wait(L"Saving clusters as fasta files ...", 0.3);
 	m_Cluster->SaveAsFastaFiles(folderpath);
 	Wait(L"Ready", 0.0);
 }
 
+void MfcClusterDlg::SaveClusteringResultAsTabDelimitedFile()
+{
+	CString outFilePath;
+	EB_OutputFilePath.GetWindowTextW(outFilePath);
+	m_OutputClusterFilePath = outFilePath.GetBuffer();
+	if (m_OutputClusterFilePath.size() == 0) {
+		MessageBox(L"Please select a destination file for the cluster results", L"Warning", MB_ICONWARNING | MB_OK);
+		Wait(L"", 0.0);
+		return;
+	}
+	Wait(L"Saving cluster as text ...", 0.3);
+	uint32_t fieldNamePos = CO_InputField.GetCurSel();
+	m_Cluster->SaveAsText(m_OutputClusterFilePath.c_str(), fieldNamePos, (uint32_t)m_Thresholds.size());
+	Wait(L"Ready", 0.0);
+}
 
+
+
+
+void MfcClusterDlg::OnBnClickedSavesimilarity()
+{
+	// TODO: Add your control notification handler code here
+	if (m_SimMatType == 0) { //save complete similarity matrix
+		SaveCompleteSimilarityMatrix();
+	}
+	else {//save sparse similarity matrix
+		SaveSparseSimilarityMatrix();
+	}
+}
+
+
+void MfcClusterDlg::OnBnClickedSave()
+{
+	if (m_Cluster == nullptr) {
+		MessageBox(L"Please cluster the sequences first before saving.", L"Warning", MB_ICONWARNING | MB_OK);
+		Wait(L"", 0.0);
+		return;
+	}
+	if(m_ResFormat == 0) {
+		// save clustering result in tab delimited format
+		SaveClusteringResultAsTabDelimitedFile();
+	}
+	else if (m_ResFormat == 1){
+		//save clustering result as a fasta file
+		SaveClusteringResultAsFastaFile();
+	}
+	else {
+		//save clustering result as a fasta folder in which a fasta file is a cluster
+		SaveClusteringResultAsFastaFolder();
+	}
+}
