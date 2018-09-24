@@ -97,6 +97,7 @@ public:
 	uint32_t							CentralSeqIdx() const;
 	size_t							GroupNo() const;
 	size_t FinalGroupNo() const;
+	size_t MaxGroupSeqNo() const;
 	void	FinalClusters(std::vector<TCluster> & p_Clusters) const;
 	void	Flatten();	//	move all groups into a single level of depth
 	void BuildAllSortedIdList();

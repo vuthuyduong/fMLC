@@ -69,6 +69,21 @@ TCluster::FinalGroupNo() const	//	return the number of final groups : if a group
 	return 1;
 }
 
+size_t
+TCluster::MaxGroupSeqNo() const	//	return the maximum sequence number of final groups : if a group contains group, call recursively, otherwise return 1
+{
+	if (m_Groups.size() > 0) { // we contain subgroups, call recursively our subgroups
+		size_t maxseqno = 0;
+		for (const TCluster & group : m_Groups) {
+			maxseqno = std::max(maxseqno,group.MaxGroupSeqNo());
+		}
+		return maxseqno;
+	}
+	return m_IdList.size();
+}
+
+
+
 void
 TCluster::Flatten()
 {
@@ -207,12 +222,15 @@ TCluster::Save(std::ostream & p_Stream, uint32_t p_FieldNamePos, uint32_t p_TabN
 		std::string refrecordname = m_ClusterDB->m_Sequences[CentralSeqIdx()]->RecordName();
 		//get suggested names
 		string suggestedname = "";
+		string suggestedfullname = "";
 		vector<string> namelist;
+		vector<string> fullnamelist;
 		vector<int> namecounts;
 		string fieldname = clustering::StrainName(refrecordname, p_FieldNamePos);
 		if (fieldname != "") {
 			namelist.push_back(clustering::StrainName(refrecordname, p_FieldNamePos));
 			namecounts.push_back(1);
+			fullnamelist.push_back(refrecordname);
 		}
 		if (m_Comparisons.size() > 0) {
 			for (const TComparison & comp : m_Comparisons) {
@@ -226,6 +244,7 @@ TCluster::Save(std::ostream & p_Stream, uint32_t p_FieldNamePos, uint32_t p_TabN
 					if (pos == namelist.end()) {
 						namelist.push_back(clustering::StrainName(recordname, p_FieldNamePos));
 						namecounts.push_back(1);
+						fullnamelist.push_back(recordname);
 					}
 					else {
 						size_t i = std::distance(namelist.begin(),pos);
@@ -239,6 +258,7 @@ TCluster::Save(std::ostream & p_Stream, uint32_t p_FieldNamePos, uint32_t p_TabN
 			std::vector<int>::iterator maxpos = std::max_element(namecounts.begin(), namecounts.end());
 			size_t i = std::distance(namecounts.begin(), maxpos);
 			suggestedname = namelist[i];
+			suggestedfullname = fullnamelist[i];
 		}
 		p_Stream << ref->RecordId();
 		if (ref->RecordId() == 6305) {
@@ -252,6 +272,8 @@ TCluster::Save(std::ostream & p_Stream, uint32_t p_FieldNamePos, uint32_t p_TabN
 		p_Stream << clustering::StrainName(refrecordname, p_FieldNamePos);
 		p_Stream << "\t";
 		p_Stream << suggestedname;
+		p_Stream << "\t";
+		p_Stream << suggestedfullname;
 		p_Stream << "\t";
 		p_ClusterIndex = p_ClusterIndex + 1;
 		p_Stream << std::to_string(p_ClusterIndex);
@@ -283,6 +305,8 @@ TCluster::Save(std::ostream & p_Stream, uint32_t p_FieldNamePos, uint32_t p_TabN
 				p_Stream << clustering::StrainName(recordname, p_FieldNamePos);
 				p_Stream << "\t";
 				p_Stream << suggestedname;
+				p_Stream << "\t";
+				p_Stream << suggestedfullname;
 				p_Stream << "\t";
 				p_Stream << std::to_string(p_ClusterIndex);
 				p_Stream << "\t";
@@ -396,7 +420,7 @@ TCluster::SaveAsText(const wchar_t * p_DestFilePath, uint32_t p_FieldNamePos, ui
 	if (file.fail()) {
 		return true; //	error
 	}
-	file << "Sequence id" << "\t" << "Sequence name" << "\t"  << "Reference name" << "\t" << "Suggested name" << "\t" << "Cluster index" << "\t" << "Number of sequences in the cluster" << "\t" ;
+	file << "Sequence id" << "\t" << "Sequence name" << "\t"  << "Reference name" << "\t" << "Suggested name" << "\t" << "Suggested fullname" << "\t" << "Cluster index" << "\t" << "Number of sequences in the cluster" << "\t" ;
 	for (uint32_t i = 0; i < p_MaxTabNo ; ++i) {
 		file << "Level" << " " << i + 1 << "\t";
 	}
