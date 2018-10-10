@@ -122,7 +122,7 @@ namespace clustering
 	std::string seqHeader;
 	seqHeader.reserve(2000);
 
-	uint32_t sequenceId = 0;
+	uint32_t sequenceId = -1; 
 
 	std::string sequence;
 	sequence.reserve(200000) ;
@@ -171,7 +171,8 @@ namespace clustering
 		while (line.length() > 0 && (line.front() == '>' || line.front() <= 32)) {
                     line.erase(line.begin(), line.begin() + 1) ;
 		}
-                sequenceId = StrainId(line);
+                //sequenceId = StrainId(line);
+                sequenceId = sequenceId + 1;
                 seqName = StrainName(line, p_NamePos) ;
                 seqHeader = line;
             }
