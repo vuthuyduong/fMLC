@@ -548,7 +548,7 @@ void MfcClusterDlg::OnBnClickedCluster()
 	logfile << "Start clustering " << m_Filename << ": " << str; 
 	logfile.close();
 	//	Computations
-	delete m_Cluster;
+	//delete m_Cluster;
 	m_Cluster = new TCluster(&m_ClusterDatabase);
 
 	Wait( L"Clustering ...", x);	x += dx;
