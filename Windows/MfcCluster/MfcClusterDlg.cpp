@@ -1390,6 +1390,7 @@ void combinePointsWithProperties(CString inputtitlefilename, CString inputfilena
 		titlefile.close();
 	}
 	////
+	int32_t n = -1;
 	while (std::getline(infile, line))
 	{
 		if (line == "") {
@@ -1402,15 +1403,16 @@ void combinePointsWithProperties(CString inputtitlefilename, CString inputfilena
 		std::vector<std::string> properties = split(line, '|');
 		/*std::string id(properties.at(0).c_str());
 		CString idstring(properties.at(0).c_str());*/
-		std::string id(properties.at(0).erase(0, 1).c_str());
+		//std::string id(properties.at(0).erase(0, 1).c_str());
 		CString idstring(properties.at(0).c_str());
 
 		CString outline;
 		CString firstline = L"\"";
 		if (fileindex == 1) outline = L"\"";
 		else outline = L",\"";
-		int32_t n = clustering::StrainId(id);
-		id = to_string(n);
+		//int32_t n = clustering::StrainId(id);
+		n = n + 1;
+		std::string id = to_string(n);
 		it = pointMap.find(id);
 		if (it != pointMap.end())
 		{
