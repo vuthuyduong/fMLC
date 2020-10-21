@@ -52,7 +52,7 @@ class MfcClusterBusiness
 		TCluster		*	m_Cluster;							//	the working cluster
 		vector<int32_t>	m_GroupSeqNumbers;
 
-		int Visualize(std::string inputfilepath, std::string titlefilepath,std::string simfilepath, int32_t d, int32_t kneighbor);
+		int Visualize(std::string base, std::string inputfilepath, std::string titlefilepath,std::string simfilepath, int32_t d, int32_t kneighbor);
 		bool m_recordnameextended;
 		int Cluster(const vector<double> & thresholds, int32_t algorithmPos, int32_t inputfieldPos, std::string inFilePath, int32_t minseqnoforMLC);
 
@@ -65,7 +65,7 @@ class MfcClusterBusiness
 		std::map<std::string, std::vector<std::string>> propertiesMap;
 
 		void makePoints(std::string filename);
-		int startLargeVisWaitForFinish(std::string parameters);
+		int startLargeVisWaitForFinish(std::string base, std::string parameters);
                 vector<std::string> split(const std::string &s, char delim);
 		void combinePointsWithProperties(std::string inputtitlefilename, std::string inputfilename, std::string outputfilename, std::string coordArchivePath);
 		uint64_t GetFileWriteTime(const wchar_t * p_FilePath);

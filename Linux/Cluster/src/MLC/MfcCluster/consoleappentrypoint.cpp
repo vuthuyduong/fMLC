@@ -80,7 +80,9 @@ int main(int argc, char* argv[])
     std::string fromthreshold;
     std::string tothreshold;
     std::string step;
-   
+    std::string argv_str(argv[0]);
+    std::string base = argv_str.substr(0, argv_str.find_last_of("/")+1);
+    
     //if (argc%2==1) // odd number of arguments,
     int br = 1;
     //for (int br1=1; br1 < argc; br1+=2){
@@ -178,7 +180,7 @@ int main(int argc, char* argv[])
         business.PredictOpt(algorithm, namepositionforprediction, infilepath,M,fromthreshold,tothreshold,step);            
     } 
     if (d>0 & (simfilepath !="")) {
-        business.Visualize(infilepath,propertytitlepath,simfilepath, d,K);
+        business.Visualize(base,infilepath,propertytitlepath,simfilepath, d,K);
     }
     
     return 0;

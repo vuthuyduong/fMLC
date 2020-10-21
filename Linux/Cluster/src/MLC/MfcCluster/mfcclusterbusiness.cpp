@@ -152,11 +152,11 @@ int MfcClusterBusiness::PredictOpt(int32_t algorithmPos, int32_t inputfieldPos, 
     return 0;
 }
 
-int MfcClusterBusiness::startLargeVisWaitForFinish(std::string parameters)
+int MfcClusterBusiness::startLargeVisWaitForFinish(std::string base, std::string parameters)
 {
 	if (system(NULL))
 	{          
-            system(("./LargeVis/LargeVis " + parameters).c_str());
+            system((base + "LargeVis/LargeVis " + parameters).c_str());
             return 0;
 	}
 	else
@@ -246,8 +246,7 @@ void MfcClusterBusiness::combinePointsWithProperties(std::string inputtitlefilen
                     {
 			outline += ",";
 			firstline += ",";
-                    }
-                    
+                    }                   
                     outline += apostrof + activeproperty + apostrof;
                     firstline += apostrof + activeproperty + apostrof;
 	        }
@@ -262,7 +261,7 @@ void MfcClusterBusiness::combinePointsWithProperties(std::string inputtitlefilen
             titlefile.close();
 	}
 	////
-        int32_t n =-1;
+        int32_t n =0;
 	while (std::getline(infile, line))
 	{
             if (line == ""){
@@ -278,7 +277,6 @@ void MfcClusterBusiness::combinePointsWithProperties(std::string inputtitlefilen
 		std::string idstring(properties.at(0).c_str());*/
 		//std::string id(properties.at(0).erase(0, 1).c_str());
 		std::string idstring(properties.at(0).c_str());
-
 		std::string outline;
 		std::string firstline = "\"";
 		if (fileindex == 1) outline = "\"";
@@ -309,7 +307,7 @@ void MfcClusterBusiness::combinePointsWithProperties(std::string inputtitlefilen
 			if (!firstlinecreated)
 				//firstline = firstline + "NamesOfProperties" + L"\":{\"Coordinates\":[" + xcord + L", " + ycord + L", " + zcord + L"],\"Properties\" : [";
 			{
-				firstline = firstline + "NamesOfProperties\":[";// +xcord + L", " + ycord + L", " + zcord + L"],\"Properties\" : [";
+                            firstline = firstline + "NamesOfProperties\":[";// +xcord + L", " + ycord + L", " + zcord + L"],\"Properties\" : [";
 			}
 		}
 
@@ -358,15 +356,16 @@ void MfcClusterBusiness::combinePointsWithProperties(std::string inputtitlefilen
 // result -1 is Please select a source fasta file and compute similarities first (cluster)
 // result -2 is Please compute and save neccessary similarity values by first clustering the sequences!
 // result -3 is Could not run LargeVis
-int MfcClusterBusiness::Visualize(std::string inputfilepath, std::string titlefilepath, std::string simfilepath, int32_t d, int32_t kneighbor)
+int MfcClusterBusiness::Visualize(std::string base, std::string inputfilepath, std::string titlefilepath, std::string simfilepath, int32_t d, int32_t kneighbor)
 {
 	std::string s2;
 	s2 = std::string(inputfilepath);
         std::string filename = s2;
 	std::string fastaFilePath(s2.c_str());
-	s2 = std::string(titlefilepath);
+        s2 = std::string(titlefilepath);
 	std::string titlefilename(s2.c_str());
-
+        std::string filepath=filename.substr(0, filename.find_last_of("/")+1);
+   
 	//we will extract only the filename from the filepath
 	const size_t last_slash_idx = filename.find_last_of("\\/");
 	if (std::string::npos != last_slash_idx)
@@ -380,13 +379,16 @@ int MfcClusterBusiness::Visualize(std::string inputfilepath, std::string titlefi
 		filename.erase(period_idx);
 	}
 	std::string fastaFileName(filename.c_str());
-        
-
 	//std::string mfcOutFilePath = "..\\..\\..\\Working\\" + fastaFileName + ".sim";
         std::string mfcOutFilePath = simfilepath;
         
-	std::string largeVisOutFilePath = "./LargeVis/" + fastaFileName + ".outLargeVis";
-	std::string coordArchivePath =  "./DiVE/data/" + fastaFileName + "_coord.json";
+	//std::string largeVisOutFilePath = "./LargeVis/" + fastaFileName + ".outLargeVis";
+	//std::string coordArchivePath =  "./DiVE/data/" + fastaFileName + "_coord.json";
+        std::string largeVisOutFilePath =  filepath + fastaFileName + ".outLargeVis";
+	std::string coordArchivePath =  filepath  + fastaFileName + "_coord.json";
+        cout << "largeVisOutFilePath " <<  largeVisOutFilePath << endl;
+        cout << "coordArchivePath " <<  coordArchivePath << endl;
+        
 	//std::string largeVIsInputParameters = L" -fea 0 -input " + mfcOutFilePath + L" -output " + largeVisOutFilePath + L" -outdim 3 -threads 4 -log 0";
 	//std::string  s = to_string(m_KneighborNo);
         if (kneighbor ==0) {
@@ -411,7 +413,7 @@ int MfcClusterBusiness::Visualize(std::string inputfilepath, std::string titlefi
 	if (d == 2) {
             largeVIsInputParameters = " -fea 0 -input " + mfcOutFilePath + " -output " + largeVisOutFilePath + " -outdim 2 -threads 4 -log 1 -samples 2 " + edges + " -neigh " + neigs;
 	}
-	std::string finalFilePath = "./DiVE/data/data.js";
+	std::string finalFilePath = base + "DiVE/data/data.js";
 	if (inputfilepath.size() == 0){
                 cout << "No input file." << endl;
 		return -1;
@@ -425,12 +427,11 @@ int MfcClusterBusiness::Visualize(std::string inputfilepath, std::string titlefi
             }
 	}
         //generate coordinates
-        
-        if (startLargeVisWaitForFinish(largeVIsInputParameters)!=0)
+        if (startLargeVisWaitForFinish(base,largeVIsInputParameters)!=0)
             return -3;
 	makePoints(largeVisOutFilePath);
 	combinePointsWithProperties(titlefilename, fastaFilePath, finalFilePath, coordArchivePath);
-        system("firefox ./DiVE/index.html");
+        system(("firefox " + base + "DiVE/index.html").c_str());
 	//ShellExecute(0, 0, "..\\..\\..\\DiVE\\index.html", 0, 0, SW_SHOW);
     
     return 1;
