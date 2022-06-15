@@ -1,6 +1,6 @@
 
 #pragma once
-
+#include <string>
 #include <vector>
 
 class double_vector : public std::vector<double> {
