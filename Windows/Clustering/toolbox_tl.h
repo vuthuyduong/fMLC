@@ -5,6 +5,7 @@
 //	WARNING: keep this file pure standard C++, without any Windows-only code
 
 #include <math.h>
+#include <string>
 #include <vector>
 #include <stdint.h>
 
